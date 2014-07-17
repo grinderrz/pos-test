@@ -20,11 +20,6 @@
                                   "model"
                                   {:model model :sentences [sentence] :sc 1})))))
 
-(defn -main
-  [& args]
-  (from-file (first args))
-  )
-
 (defn from-file [filename]
   (let [text (slurp filename)
         tagged (model/tag-text text)]
@@ -33,3 +28,9 @@
 (defn from-mysql []
   
   )
+
+(defn -main
+  [& args]
+  (from-file (first args))
+  )
+
