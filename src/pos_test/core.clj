@@ -4,14 +4,18 @@
             [clojure.java.jdbc :as jdbc])
   (:gen-class))
 
+(defn process-text [text]
+  (doall (map storage/put-tagged-sentence
+              (parser/tag-text text))))
+
 (defn from-file [filename]
-  (let [text (slurp filename)
-        tagged (parser/tag-text text)]
-    (doall (map storage/put-tagged-sentence tagged))))
+  (process-text (slurp filename)))
 
 (defn from-mysql [db-spec]
-  (println (jdbc/query db-spec ["select count(*) from content;"]))
-  )
+  (jdbc/query db-spec ["select count(*) from content;"]
+              :result-set-fn (fn [rs]
+                               (doall (map (fn [row]
+                                             (process-text (:content_text row))))))))
 
 (defn -main
   [& args]
