@@ -1,36 +1,31 @@
 (ns pos-test.core
-  (:require [pos-test.model :as model]
-             monger.core
-             monger.collection
-             monger.operators
-             )
-  (:import [com.mongodb MongoOptions ServerAddress])
+  (:require [pos-test.parser :as parser]
+            [pos-test.storage :as storage]
+            [clojure.java.jdbc :as jdbc])
   (:gen-class))
-
-(def store
-  (let [db (monger.core/get-db (monger.core/connect) "patterns")]
-    (fn [[sentence model]]
-      (if (> (monger.collection/count db "model" {:model model}) 0)
-        (monger.collection/update db
-                                  "model"
-                                  {:model model}
-                                  {monger.operators/$push {:sentences sentence}
-                                   monger.operators/$inc {:sc 1}}) 
-        (monger.collection/insert db
-                                  "model"
-                                  {:model model :sentences [sentence] :sc 1})))))
 
 (defn from-file [filename]
   (let [text (slurp filename)
-        tagged (model/tag-text text)]
-    (doall (map store tagged))))
+        tagged (parser/tag-text text)]
+    (doall (map storage/put-tagged-sentence tagged))))
 
-(defn from-mysql []
-  
+(defn from-mysql [db-spec]
+  (println (jdbc/query db-spec ["select count(*) from content;"]))
   )
 
 (defn -main
   [& args]
-  (from-file (first args))
-  )
+  (let [type (first args)]
+    (cond
+      (= type "--file")
+        (from-file (nth args 1))
+      (= type "--db")
+        (let [[host db user pass] (rest args)]
+          (from-mysql
+            {:classname "com.mysql.jdbc.Driver"
+             :subprotocol "mysql"
+             :subname (str "//" host ":3306/" db)
+             :user user
+             :password pass}))
+        )))
 

@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [clojure-opennlp "0.3.2"]
                  [com.novemberain/monger "2.0.0"]
+                 [org.clojure/java.jdbc "0.3.4"]
                  ]
   :main ^:skip-aot pos-test.core
   :target-path "target/%s"

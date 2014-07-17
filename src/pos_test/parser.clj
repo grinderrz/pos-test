@@ -1,4 +1,4 @@
-(ns pos-test.model
+(ns pos-test.parser
   (:require [opennlp.nlp :as nlp]))
 
 (def sentence-split (nlp/make-sentence-detector "models/en-sent.bin"))
