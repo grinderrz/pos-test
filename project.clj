@@ -7,6 +7,7 @@
                  [clojure-opennlp "0.3.2"]
                  [com.novemberain/monger "2.0.0"]
                  [org.clojure/java.jdbc "0.3.4"]
+                 [mysql/mysql-connector-java "5.1.25"]
                  ]
   :main ^:skip-aot pos-test.core
   :target-path "target/%s"
