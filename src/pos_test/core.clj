@@ -12,18 +12,21 @@
   (process-text (slurp filename)))
 
 (defn from-mysql [db-spec]
-  (jdbc/query db-spec ["select count(*) from content;"]
-              :result-set-fn (fn [rs]
-                               (doall (map (fn [row]
-                                             (process-text (:content_text row))))))))
+  (doall
+    (take 200000
+          (for [id (range)]
+            (jdbc/query db-spec
+              ["select content_text from content where content_id = ?;" id]
+              :row-fn (fn [row]
+                        (process-text (:content_text row))))))))
 
 (defn -main
   [& args]
-  (let [type (first args)]
+  (let [input-type (first args)]
     (cond
-      (= type "--file")
+      (= input-type "--file")
         (from-file (nth args 1))
-      (= type "--db")
+      (= input-type "--db")
         (let [[host db user pass] (rest args)]
           (from-mysql
             {:classname "com.mysql.jdbc.Driver"
