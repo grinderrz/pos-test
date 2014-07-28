@@ -25,10 +25,13 @@
                         (.setMaxIdleTimeExcessConnections  (* 30 60))
                         (.setMaxIdleTime  (* 3 60 60)))}]
             (for [id (range)]
-              (jdbc/query pool
+              (do
+                (if (= 0 (mod id 1000))
+                  (println id))
+                (jdbc/query pool
                 ["select content_text from content where content_id = ?;" id]
                 :row-fn (fn [row]
-                          (process-text (:content_text row)))))))))
+                          (process-text (:content_text row))))))))))
 
 (defn -main
   [& args]
