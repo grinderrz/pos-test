@@ -3,7 +3,7 @@
             [pos-test.storage :as storage]
             [pos-test.server :as server]
             [clojure.java.jdbc :as jdbc]
-            [com.mchange.v2.c3p0.ComboPooledDataSource as cpds])
+            [com.mchange.v2.c3p0.ComboPooledDataSource :as cpds])
   (:gen-class))
 
 (defn process-text [text]
