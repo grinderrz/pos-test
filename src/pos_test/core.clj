@@ -1,12 +1,14 @@
 (ns pos-test.core
   (:require [pos-test.parser :as parser]
             [pos-test.storage :as storage]
-            [clojure.java.jdbc :as jdbc])
+            [pos-test.server :as server]
+            [clojure.java.jdbc :as jdbc]
+            [com.mchange.v2.c3p0.ComboPooledDataSource as cpds])
   (:gen-class))
 
 (defn process-text [text]
   (doall (map storage/put-tagged-sentence
-              (parser/tag-text text))))
+              (parser/tag-text text 100))))
 
 (defn from-file [filename]
   (process-text (slurp filename)))
@@ -14,11 +16,19 @@
 (defn from-mysql [db-spec]
   (doall
     (take 200000
-          (for [id (range)]
-            (jdbc/query db-spec
-              ["select content_text from content where content_id = ?;" id]
-              :row-fn (fn [row]
-                        (process-text (:content_text row))))))))
+          (let [pool {:datasource
+                      (doto (cpds.)
+                        (.setDriverClass (:classtame db-spec))
+                        (.setJdbcUrl (str "jdbc:" (:subprotocol spec) ":" (:subname spec)))
+                        (.setUser (:user spec))
+                        (.setPassword (:password spec))
+                        (.setMaxIdleTimeExcessConnections  (* 30 60))
+                        (.setMaxIdleTime  (* 3 60 60)))}]
+            (for [id (range)]
+              (jdbc/query pool
+                ["select content_text from content where content_id = ?;" id]
+                :row-fn (fn [row]
+                          (process-text (:content_text row)))))))))
 
 (defn -main
   [& args]
@@ -34,5 +44,9 @@
              :subname (str "//" host ":3306/" db)
              :user user
              :password pass}))
+      (= input-type "--serve")
+        (let [port (first (rest args))]
+          (server/run port)
+          )
         )))
 

@@ -8,19 +8,21 @@
 (def ^{:private true}
   db (monger.core/get-db (monger.core/connect) "patterns"))
 
+(def ^{:private true} coll "model2")
+
 (defn put-tagged-sentence [[sentence model]]
-  (if (> (monger.collection/count db "model" {:model model}) 0)
+  (if (> (monger.collection/count db coll {:model model}) 0)
     (monger.collection/update db
-                              "model"
+                              coll
                               {:model model}
                               {monger.operators/$push {:sentences sentence}
                                monger.operators/$inc {:sc 1}})
     (monger.collection/insert db
-                              "model"
+                              coll
                               {:model model :sentences [sentence] :sc 1})))
 
 (defn find-positioned [limit offset]
-  (monger.query/with-collection db "model"
+  (monger.query/with-collection db coll
     (monger.query/find {})
     (monger.query/fields [:sc :model :sentences])
     (monger.query/sort (array-map :sc -1))
