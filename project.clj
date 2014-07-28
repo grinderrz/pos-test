@@ -8,7 +8,9 @@
                  [com.novemberain/monger "2.0.0"]
                  [org.clojure/java.jdbc "0.3.4"]
                  [mysql/mysql-connector-java "5.1.25"]
-                 ]
+                 [compojure "1.1.8"]
+                 [ring/ring-core "1.3.0"]
+                 [ring/ring-jetty-adapter "1.3.0"]]
   :main ^:skip-aot pos-test.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})

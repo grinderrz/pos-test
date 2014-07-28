@@ -1,6 +1,7 @@
 (ns pos-test.core
   (:require [pos-test.parser :as parser]
             [pos-test.storage :as storage]
+            [pos-test.server :as server]
             [clojure.java.jdbc :as jdbc])
   (:gen-class))
 
@@ -34,5 +35,9 @@
              :subname (str "//" host ":3306/" db)
              :user user
              :password pass}))
+      (= input-type "--serve")
+        (let [port (first (rest args))]
+          (server/run port)
+          )
         )))
 
