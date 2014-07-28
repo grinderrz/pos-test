@@ -11,8 +11,12 @@
 (defn tag-sentence [sentence]
   [sentence (make-model sentence)])
 
-(defn tag-text [text]
-  (map tag-sentence (sentence-split text)))
+(defn tag-text
+  ([text] (map tag-sentence (sentence-split text)))
+  ([text max-length]
+   (map tag-sentence
+        (filterv #(< (count %) max-length)
+                 (sentence-split text)))))
 
 (defn analyze-text [text]
   (sort-by #(- 0 (count (% 1))) (group-by make-model (sentence-split text))))
