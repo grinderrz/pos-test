@@ -22,14 +22,15 @@
 (defn find-positioned [limit offset]
   (monger.query/with-collection db "model"
     (monger.query/find {})
-    (monger.query/fields [:model :sentences])
+    (monger.query/fields [:sc :model :sentences])
     (monger.query/sort (array-map :sc -1))
     (monger.query/limit limit)
     (monger.query/skip offset)))
 
 (defn disp-mongo-model
   ([mongo-model num-sentences]
-    {:model (mongo-model :model)
+    {:count (mongo-model :sc)
+     :model (mongo-model :model)
      :examples (take num-sentences (mongo-model :sentences))})
   ([mongo-model] (disp-mongo-model mongo-model 5))
   )
