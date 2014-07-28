@@ -3,7 +3,8 @@
             [pos-test.storage :as storage]
             [pos-test.server :as server]
             [clojure.java.jdbc :as jdbc]
-            [com.mchange.v2.c3p0.ComboPooledDataSource :as cpds])
+            )
+  (:import com.mchange.v2.c3p0.ComboPooledDataSource)
   (:gen-class))
 
 (defn process-text [text]
@@ -17,11 +18,11 @@
   (doall
     (take 200000
           (let [pool {:datasource
-                      (doto (cpds.)
+                      (doto (ComboPooledDataSource.)
                         (.setDriverClass (:classtame db-spec))
-                        (.setJdbcUrl (str "jdbc:" (:subprotocol spec) ":" (:subname spec)))
-                        (.setUser (:user spec))
-                        (.setPassword (:password spec))
+                        (.setJdbcUrl (str "jdbc:" (:subprotocol db-spec) ":" (:subname db-spec)))
+                        (.setUser (:user db-spec))
+                        (.setPassword (:password db-spec))
                         (.setMaxIdleTimeExcessConnections  (* 30 60))
                         (.setMaxIdleTime  (* 3 60 60)))}]
             (for [id (range)]
